@@ -48,13 +48,12 @@ class DogInput(BaseModel):
 @app.post("/recommend")
 def recommend(input: DogInput, model_version: str = "bi"):
     user_row = pd.DataFrame([input.dict()])
-    user_vectors, dog_vectors, gps, ids, names = prepare_vectors(
+    user_vectors, dog_vectors, gps, ids, names, personalities = prepare_vectors(
         user_row, df, mode=model_version
     )
     model = load_bi_model() if model_version == "bi" else load_uni_model()
     with torch.no_grad():
         scores = model(torch.tensor(dog_vectors, dtype=torch.float32)).squeeze().numpy()
-
     top_idx = np.argsort(scores)[::-1][:10]
     results = []
     for idx in top_idx:
@@ -65,10 +64,10 @@ def recommend(input: DogInput, model_version: str = "bi"):
                 "score": float(scores[idx]),
                 "lat": gps[idx][0],
                 "lon": gps[idx][1],
+                "personality": personalities[idx],
                 "image": f"{ids[idx]}.png",
             }
         )
-    print(results)
     return {"recommendations": results}
 
 
