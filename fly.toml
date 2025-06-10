@@ -18,6 +18,7 @@ primary_region = 'nrt'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
+  size = "shared-cpu-2x"
+  memory = '2gb'
   cpu_kind = 'shared'
   cpus = 1
